@@ -1,0 +1,700 @@
+"""
+Indicates that a field is experimental and may have a higher rate of errors, timeouts, or data availability issues.
+"""
+directive @experimental on FIELD_DEFINITION
+
+"""
+A directive used by the Apollo iOS client to annotate operations or fragments that should be used exclusively for generating local cache mutations instead of as standard operations.
+"""
+directive @apollo_client_ios_localCacheMutation on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
+
+"""
+A directive used by the Apollo iOS code generation engine to generate custom import statements in operation or fragment definition files. An import statement to import a module with the name provided in the `module` argument will be added to the generated definition file.
+"""
+directive @import(
+  """The name of the module to import."""
+  module: String!
+) repeatable on QUERY | MUTATION | SUBSCRIPTION | FRAGMENT_DEFINITION
+
+scalar URL
+
+scalar BigInt
+
+type Query {
+  """Query for Amazon product information"""
+  amazonProduct(input: AmazonProductInput!): AmazonProduct
+
+  """Query for Amazon product search results"""
+  amazonProductSearchResults(input: AmazonProductSearchResultsInput!): AmazonProductSearchResults
+
+  """Query for Amazon autocomplete results from the search bar"""
+  amazonSearchAutocompleteResults(input: AmazonSearchAutocompleteInput!): [AmazonSearchAutocompleteResult!]!
+
+  """Query for root level Amazon product categories"""
+  amazonProductCategoryTaxonomy(input: AmazonProductCategoryTaxonomyInput): [AmazonProductCategory!]!
+
+  """Query for an Amazon product category"""
+  amazonProductCategory(input: AmazonProductCategoryInput!): AmazonProductCategory
+  amazonSeller(input: AmazonSellerInput!): AmazonSeller
+}
+
+input AmazonSearchAutocompleteInput {
+  """The domain for fetching autocomplete data, defaults to US"""
+  domain: AmazonDomain
+
+  """The search term for fetching autocomplete results"""
+  searchTerm: String!
+
+  """The search autocomplete_alias in the amazon url parameter"""
+  category: AmazonAutocompleteCategory
+}
+
+type AmazonSearchAutocompleteResult {
+  """The search term suggested by autocomplete"""
+  suggestion: String!
+}
+
+enum AmazonAutocompleteCategory {
+  ALL_DEPARTMENTS
+  AUDIBLE_BOOKS_AND_ORIGINALS
+  ALEXA_SKILLS
+  AMAZON_DEVICES
+  AMAZON_FRESH
+  AMAZON_PHARMACY
+  AMAZON_WAREHOUSE
+  APPLIANCES
+  APPS_AND_GAMES
+  ARTS_CRAFTS_AND_SEWING
+  AUTOMOTIVE_PARTS_AND_ACCESSORIES
+  BABY
+  BEAUTY_AND_PERSONAL_CARE
+  BOOKS
+  CDS_AND_VINYL
+  CELL_PHONES_AND_ACCESSORIES
+  CLOTHING_SHOES_AND_JEWELRY
+  WOMEN
+  MEN
+  GIRLS
+  BOYS
+  BABY_FASHION
+  AMAZON_EXPLORE
+  COLLECTIBLES_AND_FINE_ART
+  COMPUTERS
+  COURSES
+  CREDIT_AND_PAYMENT_CARDS
+  DIGITAL_EDUCATIONAL_RESOURCES
+  DIGITAL_MUSIC
+  ELECTRONICS
+  GARDEN_AND_OUTDOOR
+  GIFT_CARDS
+  GROCERY_AND_GOURMET_FOOD
+  HANDMADE
+  HEALTH_HOUSEHOLD_AND_BABY_CARE
+  HOME_AND_BUSINESS_SERVICES
+  HOME_AND_KITCHEN
+  INDUSTRIAL_AND_SCIENTIFIC
+  JUST_FOR_PRIME
+  KINDLE_STORE
+  LUGGAGE_AND_TRAVEL_GEAR
+  MAGAZINE_SUBSCRIPTIONS
+  MOVIES_AND_TV
+  MUSICAL_INSTRUMENTS
+  OFFICE_PRODUCTS
+  PET_SUPPLIES
+  PREMIUM_BEAUTY
+  PRIME_VIDEO
+  SMART_HOME
+  SOFTWARE
+  SPORTS_AND_OUTDOORS
+  SUBSCRIPTION_BOXES
+  TOOLS_AND_HOME_IMPROVEMENT
+  TOYS_AND_GAMES
+  UNDER_10
+  VEHICLES
+  VIDEO_GAMES
+  WHOLE_FOODS_MARKET
+}
+
+"""The input type for `amazonSeller`"""
+input AmazonSellerInput {
+  """The domain for fetching product data, defaults to US"""
+  domain: AmazonDomain
+
+  """The seller ID for a product (e.g. B01HY0JA3G)"""
+  sellerId: String!
+}
+
+"""An Amazon Seller and store front"""
+type AmazonSeller {
+  """The name of the seller"""
+  name: String
+
+  """The url of the logo"""
+  logoUrl: URL
+
+  """The phone number of the seller, if available"""
+  phone: String
+
+  """The rating of the seller, if available"""
+  rating: Float
+
+  """The About information for the seller, if available"""
+  about: String
+
+  """The product results for the seller, if available"""
+  productResults(input: AmazonSellerProductResultsInput): AmazonProductResultsPage
+}
+
+input AmazonSellerProductResultsInput {
+  """The page number requested for product results"""
+  page: BigInt
+}
+
+"""The input type for `amazonProductCategoryTaxonomy`"""
+input AmazonProductCategoryTaxonomyInput {
+  """The domain for fetching product category taxonomy, defaults to US"""
+  domain: AmazonDomain
+}
+
+"""The input object for retrieving search results"""
+input AmazonProductSearchResultsInput {
+  """The domain for fetching search results data, defaults to US"""
+  domain: AmazonDomain
+
+  """The search term for fetching search results"""
+  searchTerm: String!
+
+  """
+  An optional category ID used to filter search results, typically a number but may also be a string in certain cases (e.g. `amazonfresh`)
+  """
+  categoryId: String
+
+  """
+  Optional refinements to apply to search results (also commonly called 'filters').
+  """
+  refinements: AmazonProductSearchRefinements
+}
+
+"""
+Refinements available on a search results page. These are filters that can be applied to the search results.
+"""
+input AmazonProductSearchRefinements {
+  """
+  Condition is a commonly available and used refinement option.
+  If the search result page does not support this option it will be ignored.
+  """
+  conditions: [AmazonProductCondition]
+  priceRange: PriceRange
+}
+
+input PriceRange {
+  min: Float
+  max: Float
+}
+
+enum AmazonProductCondition {
+  NEW
+  USED
+  RENEWED
+}
+
+input AmazonProductSearchRefinementPair {
+  """The name of the refinement"""
+  name: String!
+
+  """The values to apply to the refinements."""
+  values: [String!]
+}
+
+"""The input object for retrieving product category information."""
+input AmazonProductCategoryInput {
+  """The domain for fetching product category data, defaults to US"""
+  domain: AmazonDomain
+
+  """
+  The category ID, typically a number but may also be a string in certain cases (e.g. `amazonfresh`)
+  """
+  categoryId: String!
+}
+
+"""A page of product results."""
+type AmazonProductResultsPage {
+  """A list of AmazonProducts from the current page"""
+  results: [AmazonProduct]
+
+  """Metadata about the current page"""
+  pageInfo: AmazonPageInfo
+}
+
+"""The available options for sorting AmazonProductCategory results."""
+enum AmazonProductResultsSort {
+  """The default option to sort by featured items first"""
+  FEATURED
+
+  """Sort by most recent product arrivals to the category"""
+  MOST_RECENT
+
+  """Sort from lowest price to highest price"""
+  PRICE_ASCENDING
+
+  """Sort from highest price to lowest price"""
+  PRICE_DESCENDING
+
+  """Sorts by average customer review"""
+  AVERAGE_CUSTOMER_REVIEW
+}
+
+"""Either `asinLookup`, `urlLookup`, or `gtinLookup` is required."""
+input AmazonProductInput {
+  asinLookup: AmazonProductAsinLookup
+  gtinLookup: AmazonProductGtinLookup
+  urlLookup: AmazonProductUrlLookup
+}
+
+"""For use when looking up Amazon Product by ASIN."""
+input AmazonProductAsinLookup {
+  """The domain for fetching product data, defaults to US"""
+  domain: AmazonDomain
+
+  """The ASIN for a product (e.g. B01HY0JA3G)"""
+  asin: String!
+}
+
+"""For use when looking up Amazon Product by GTIN."""
+input AmazonProductGtinLookup {
+  """The domain for fetching product data, defaults to US"""
+  domain: AmazonDomain
+
+  """The GTIN (ISBN, UPC or EAN code) for a product."""
+  gtin: String!
+}
+
+"""For use when looking up Amazon Product by URL."""
+input AmazonProductUrlLookup {
+  """
+  The Amazon URL for a product
+  
+  ([Example](https://www.amazon.com/Dropps-Sensitive-Laundry-Detergent-Scent/dp/B01HY0JA3G/))
+  """
+  url: String!
+}
+
+"""Supported Amazon Domains (e.g. amazon.com, amazon.co.uk)"""
+enum AmazonDomain {
+  """The Amazon.com.au domain used by customers in Australia"""
+  AU
+
+  """The Amazon.ca domain used by customers in Canada"""
+  CA
+
+  """The amazon.com domain used by customers in the United States"""
+  US
+
+  """The amazon.co.uk domain used by customers in the United States"""
+  UK
+
+  """The amazon.fr domain used by customers in France"""
+  FR
+
+  """The amazon.it domain used by customers in Italy"""
+  IT
+}
+
+"""
+Details about the product from Amazon. Most of the information
+provided can be found on the Amazon product page
+
+([Example](https://www.amazon.com/Dropps-Sensitive-Laundry-Detergent-Scent/dp/B01HY0JA3G/))
+"""
+type AmazonProduct {
+  """The title of the product as displayed on Amazon"""
+  title: String!
+
+  """The subtitle of the product as displayed on Amazon"""
+  subtitle: String
+
+  """The brand of the product as displayed on Amazon"""
+  brand: String
+
+  """The coupon for the product, if one is available. """
+  coupon: AmazonProductCoupon
+
+  """
+  The country of origin for the product, from technical specifications (if available).
+  """
+  countryOfOrigin: String
+
+  """
+  The Feature Bullets are the items found in the About this item section on the Amazon product page.
+  """
+  featureBullets: [String]
+
+  """
+  The URL of the product on Amazon
+  ([Example](https://www.amazon.com/Dropps-Sensitive-Laundry-Detergent-Scent/dp/B01HY0JA3G/))
+  """
+  url: URL!
+
+  """The ASIN of the parent product on Amazon, if available"""
+  asin: String
+
+  """
+  A flag indicating if the product is Prime eligible for the Buy Box offer.
+  """
+  isPrime: Boolean!
+
+  """
+  A flag indicating if the product is available in New condition for the Buy Box offer.
+  """
+  isNew: Boolean!
+  packageWeight: String
+
+  """
+  The price of the product for the [Featured Offer](https://sellercentral.amazon.com/help/hub/reference/external/G37911) (AKA the Buy Box)
+  The price may be unavailable in certain cases (e.g. if the product is currently unavailable).
+  """
+  price: AmazonProductPrice
+
+  """The categories for a product on Amazon"""
+  categories: [AmazonProductCategory]
+
+  """
+  The Best Sellers Ranks as found in product details on a product page on Amazon
+  """
+  bestSellerRankings: [AmazonBestsellerRanking]
+
+  """The main image url for a product on Amazon"""
+  mainImageUrl: URL
+
+  """
+  Other images available for a product on Amazon (excludes the image from mainImageUrl)
+  """
+  imageUrls: [URL]
+
+  """The aggregate star rating for the product"""
+  rating: Float
+
+  """
+  The total number of ratings for the product. This number includes ratings with and without a review
+  """
+  ratingsTotal: BigInt
+
+  """A breakdown of the number of ratings by number of stars"""
+  ratingsBreakdown: AmazonRatingsBreakdown
+
+  """The total number of reviews for a product."""
+  reviewsTotal: BigInt
+
+  """Fetch on or more pages of review results."""
+  reviewsPaginated(input: AmazonProductReviewsInput): AmazonProductReviewsPage
+
+  """
+  Sales estimations for the product. Will return `null` if estimates are unavailable.
+  """
+  salesEstimate: AmazonProductSalesEstimate
+
+  """
+  Stock estimations for the product. Will return `null` if estimate is unavailable or requires login.
+  """
+  stockEstimate: AmazonProductStockEstimate
+
+  """
+  The subscribe and save discount percentage for the product, if available (i.e. 0-100).
+  """
+  subscribeAndSaveDiscountPercentage: Float
+
+  """The subscribe and save discount price for the product, if available."""
+  subscribeAndSaveDiscountPrice: AmazonProductPrice
+
+  """
+  The subscribe and save maximum discount for the product, if available (i.e. 0-100).
+  """
+  subscribeAndSaveMaximumDiscountPercentage: Float
+
+  """
+  The subscribe and save maximum discount price for the product, if available.
+  """
+  subscribeAndSaveMaximumDiscountPrice: AmazonProductPrice
+
+  """The technical specs of the product, if available"""
+  technicalSpecifications: [AmazonProductTechnicalSpecification]
+
+  """Videos for the product, if available"""
+  videos: [AmazonProductVideo]
+
+  """
+  Videos from the "Videos for this product" section on the product details page, if available
+  """
+  videosForThisProduct: [AmazonProductVideo]
+
+  """
+  Videos from the "Videos for related products" section on the product details page, if available
+  """
+  videosForRelatedProducts: [AmazonProductVideo]
+}
+
+type AmazonProductTechnicalSpecification {
+  """The name of the technical specification"""
+  name: String
+
+  """The value of the technical specification"""
+  value: String
+}
+
+type AmazonProductVideo {
+  """The title of the video."""
+  title: String!
+
+  """The image URL for the thumbnail. Typically a PNG."""
+  thumbnailImageUrl: URL
+
+  """The URL for the video source."""
+  url: URL
+}
+
+"""A coupon for an AmazonProduct."""
+type AmazonProductCoupon {
+  """The text for coupon (e.g. 'Save 20%')"""
+  label: String!
+}
+
+"""
+Stock levels and other availability data for the product for a given offer.
+"""
+type AmazonProductStockEstimate {
+  """The offer ID associated with the stock estimate"""
+  offerId: String
+
+  """Whether or not the product is in stock"""
+  inStock: Boolean!
+
+  """The number of items in stock"""
+  stockLevel: Int
+
+  """Indicates the shipping times for the product"""
+  availabilityMessage: String
+}
+
+"""Weekly, monthly, and annual sales estimates for the product."""
+type AmazonProductSalesEstimate {
+  """The estimated weekly sales for the product"""
+  weeklyUnitSales: Int
+
+  """The estimated monthly sales for the product"""
+  monthlyUnitSales: Int
+
+  """The estimated annual sales for the product"""
+  annualUnitSales: Int
+}
+
+"""The price for the Amazon Product or Variant"""
+type AmazonProductPrice {
+  """The currency symbol"""
+  symbol: String!
+
+  """The numeric value of the price"""
+  value: Float!
+
+  """The currency for the given price"""
+  currency: String!
+
+  """The price string as displayed on Amazon (e.g. $10.99)"""
+  display: String!
+}
+
+"""
+A page of reviews usually contains 10 results.
+Amazon typically limits the number of reviews on site to 500.
+"""
+type AmazonProductReviewsPage {
+  """A list of AmazonProductReview from the current page"""
+  reviews: [AmazonProductReview]
+
+  """Metadata about the current page"""
+  pageInfo: AmazonPageInfo
+}
+
+"""Metadata to help with reviews pagination."""
+type AmazonPageInfo {
+  """The current page of results"""
+  currentPage: BigInt
+
+  """The total number of pages of results"""
+  totalPages: BigInt
+
+  """An indicator if the next page of results is available"""
+  hasNextPage: Boolean
+
+  """An indicator if a previous page of results is available"""
+  hasPrevPage: Boolean
+}
+
+"""A product review for an Amazon product"""
+type AmazonProductReview {
+  """The id for the `AmazonProductReview` (e.g. R1BHMF95GVJSTO)"""
+  id: String
+
+  """The title of the `AmazonProductReview`"""
+  title: String
+
+  """The body of the `AmazonProductReview` as plain text (no html)"""
+  body: String
+
+  """The image URLs for the `AmazonProductReview`, if available"""
+  imageUrls: [URL]
+
+  """
+  The `AmazonProductReviewVideo`s for the `AmazonProductReview`, if available
+  """
+  videos: [AmazonProductReviewVideo]
+
+  """The rating for the review, between 1 and 5 stars."""
+  rating: Int
+
+  """The number of helpful votes for the review"""
+  helpfulVotes: BigInt
+
+  """
+  An indication if the review was purchased by a purchaser verified by Amazon
+  """
+  verifiedPurchase: Boolean
+}
+
+"""A video attached to an AmazonProductReview"""
+type AmazonProductReviewVideo {
+  """
+  The image URL for the [poster](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/video#attr-poster)
+  image, typically displayed while the video is loading the first frame.
+  """
+  posterImageUrl: URL
+
+  """The URL for the video source."""
+  url: URL
+}
+
+"""Inputs to fetch product reviews."""
+input AmazonProductReviewsInput {
+  """The page requested for product reviews"""
+  page: BigInt
+
+  """Optionally filter for reviews from purchasers verified by Amazon"""
+  onlyVerifiedReviews: Boolean
+}
+
+"""A breakdown of the number of reviews by each rating 1-5 stars."""
+type AmazonRatingsBreakdown {
+  """The total number of one star reviews"""
+  oneStarRatingsCount: BigInt
+
+  """The total number of two star reviews"""
+  twoStarRatingsCount: BigInt
+
+  """The total number of three star reviews"""
+  threeStarRatingsCount: BigInt
+
+  """The total number of four star reviews"""
+  fourStarRatingsCount: BigInt
+
+  """The total number of five star reviews"""
+  fiveStarRatingsCount: BigInt
+}
+
+"""
+The dimensions of the Amazon Product, types of dimensions vary by type of product
+"""
+type AmazonProductDimensions {
+  name: String
+  value: String
+}
+
+"""The category on Amazon"""
+type AmazonProductCategory {
+  """
+  The Amazon ID for a category. In the example URL this is identified by the `node` parameter.
+  
+  ([Example]https://www.amazon.com/health-personal-care-nutrition-fitness/b/?node=3760901))
+  """
+  id: String
+
+  """The name of the category"""
+  name: String
+
+  """
+  The Amazon URL for a category page
+  
+  ([Example]https://www.amazon.com/health-personal-care-nutrition-fitness/b/?node=3760901))
+  """
+  url: URL
+
+  """
+  The breadcrumb path for a category.
+  
+  Example: Clothing, Shoes & Jewelry › Men › Clothing › Shirts
+  """
+  breadcrumbPath: String
+
+  """
+  Product results shown on the category listing page.
+  
+  If `input` is not provided, will default to first page with default sort.
+  
+  Certain higher level category pages will have no product results and may require drilling down into lower level categories to find product results.
+  """
+  productResults(input: AmazonProductCategoryProductResultsInput): AmazonProductResultsPage
+
+  """Subcategories of the current category in the Amazon taxonomy"""
+  subcategories: [AmazonProductCategory!]
+}
+
+"""An Amazon Search Results page."""
+type AmazonProductSearchResults {
+  """
+  Refinements available on a search results page. These are filters that can be applied to the search results.
+  """
+  availableRefinements: [AmazonProductSearchRefinement]
+
+  """
+  Product results shown on the search results page.
+  
+  If `input` is not provided, will default to first page with default sort.
+  """
+  productResults(input: AmazonProductSearchResultsProductResultsInput): AmazonProductResultsPage
+}
+
+type AmazonProductSearchRefinement {
+  """The name of the refinement"""
+  name: String
+
+  """The available options for the refinement"""
+  options: [AmazonProductSearchRefinementOption]
+}
+
+type AmazonProductSearchRefinementOption {
+  """The name of the refinement option"""
+  name: String
+}
+
+input AmazonProductSearchResultsProductResultsInput {
+  """The page number requested for product results"""
+  page: BigInt
+
+  """The sort for the product results on the search results page"""
+  sort: AmazonProductResultsSort
+}
+
+input AmazonProductCategoryProductResultsInput {
+  """The page number requested for product results"""
+  page: BigInt
+
+  """The sort for the product results on the category page"""
+  sort: AmazonProductResultsSort
+}
+
+"""Best seller ranking by category"""
+type AmazonBestsellerRanking {
+  """The category name for this ranking"""
+  categoryName: String!
+
+  """The rank for this product for this category"""
+  rank: Int!
+}

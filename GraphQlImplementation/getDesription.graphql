@@ -1,0 +1,12 @@
+query SearchExample {
+  amazonProductSearchResults(input: {
+    searchTerm: "stoicism"
+  }) {
+    productResults {
+      results {
+        asin
+        title
+      }
+    }
+  }
+}
