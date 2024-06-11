@@ -1,6 +1,6 @@
-query SearchExample {
+query SearchExample($searchTerm: String!) {
   amazonProductSearchResults(input: {
-    searchTerm: "stoicism"
+    searchTerm: $searchTerm
   }) {
     productResults {
       results {

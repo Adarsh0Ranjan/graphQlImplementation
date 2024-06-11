@@ -7,10 +7,16 @@ public class SearchExampleQuery: GraphQLQuery {
   public static let operationName: String = "SearchExample"
   public static let operationDocument: ApolloAPI.OperationDocument = .init(
     definition: .init(
-      #"query SearchExample { amazonProductSearchResults(input: { searchTerm: "stoicism" }) { __typename productResults { __typename results { __typename asin title } } } }"#
+      #"query SearchExample($searchTerm: String!) { amazonProductSearchResults(input: { searchTerm: $searchTerm }) { __typename productResults { __typename results { __typename asin title } } } }"#
     ))
 
-  public init() {}
+  public var searchTerm: String
+
+  public init(searchTerm: String) {
+    self.searchTerm = searchTerm
+  }
+
+  public var __variables: Variables? { ["searchTerm": searchTerm] }
 
   public struct Data: GetDescriptionAPi.SelectionSet {
     public let __data: DataDict
@@ -18,7 +24,7 @@ public class SearchExampleQuery: GraphQLQuery {
 
     public static var __parentType: ApolloAPI.ParentType { GetDescriptionAPi.Objects.Query }
     public static var __selections: [ApolloAPI.Selection] { [
-      .field("amazonProductSearchResults", AmazonProductSearchResults?.self, arguments: ["input": ["searchTerm": "stoicism"]]),
+      .field("amazonProductSearchResults", AmazonProductSearchResults?.self, arguments: ["input": ["searchTerm": .variable("searchTerm")]]),
     ] }
 
     /// Query for Amazon product search results

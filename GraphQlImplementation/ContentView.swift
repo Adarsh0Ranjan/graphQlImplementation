@@ -17,9 +17,9 @@ struct ContentView: View {
             Text("Hello, world!")
         }
         .padding()
-        .task {
-            viewModel.loadDescriptions()
-        }
+//        .task {
+//            viewModel.loadDescriptions()
+//        }
     }
 }
 

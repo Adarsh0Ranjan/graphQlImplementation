@@ -33,13 +33,16 @@ import GetDescriptionAPi
 class StationListViewModel: ObservableObject {
     @Published var stationList: [SearchExampleQuery.Data.AmazonProductSearchResults.ProductResults.Result?] = []
     init() {
-        self.loadDescriptions()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10, execute: {
-            print("first results after 10 sec \(self.stationList[0]?.title)")
+        self.loadDescriptions(completion: {
+            for station in self.stationList {
+                    if let title = station?.title {
+                        print(title)
+                    }
+                }
         })
     }
-    func loadDescriptions() {
-        Network.shared.apollo.fetch(query: SearchExampleQuery()) { [weak self] result in
+    func loadDescriptions(completion: @escaping () -> Void) {
+        Network.shared.apollo.fetch(query: SearchExampleQuery(searchTerm: "iphone")) { [weak self] result in
             guard let self = self else {
                 return
             }
@@ -56,14 +59,18 @@ class StationListViewModel: ObservableObject {
                     print(errors)
                 }
                 
-            
+                // Call completion handler when the operation is completed
+                completion()
                 
             case .failure(let error):
                 print(error)
+                // Call completion handler even if there's a failure, if necessary
+                completion()
             }
             
         }
     }
+
 }
 import Foundation
 
